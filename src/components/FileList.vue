@@ -1,15 +1,18 @@
 <template>
-  <div class="file-list">
-    <h2>Files</h2>
-    <ul v-if="files.length">
-      <li v-for="file in files" :key="file._id" class="file-item">
-        <router-link :to="{ name: 'file-viewer', params: { id: file._id } }">
+  <div class="mt-8">
+    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Files</h2>
+    <ul v-if="files.length" class="bg-white rounded-lg shadow divide-y divide-gray-200">
+      <li v-for="file in files" :key="file._id" class="flex justify-between items-center p-4 hover:bg-gray-50">
+        <router-link :to="{ name: 'file-viewer', params: { id: file._id } }" class="text-blue-600 hover:text-blue-800">
           {{ file.name }}
         </router-link>
-        <button @click="deleteFile(file._id)" class="delete-btn">Delete</button>
+        <button @click="deleteFile(file._id)"
+          class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors">
+          Delete
+        </button>
       </li>
     </ul>
-    <p v-else>No files uploaded yet.</p>
+    <p v-else class="text-gray-500 text-center py-4">No files uploaded yet.</p>
   </div>
 </template>
 
@@ -43,44 +46,3 @@ onMounted(loadFiles);
 
 defineExpose({ loadFiles });
 </script>
-
-<style scoped>
-.file-list {
-  margin: 20px 0;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-.file-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.delete-btn {
-  padding: 5px 10px;
-  background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.delete-btn:hover {
-  background-color: #da190b;
-}
-
-a {
-  color: #42b983;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-</style>

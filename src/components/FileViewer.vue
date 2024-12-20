@@ -1,19 +1,61 @@
 <template>
-  <div class="file-viewer">
-    <h2>File Details</h2>
-    <div v-if="file">
-      <h3>{{ file.name }}</h3>
-      <p><strong>Size:</strong> {{ file.size }} bytes</p>
-      <p><strong>Type:</strong> {{ file.type }}</p>
-      <p><strong>Uploaded On:</strong> {{ new Date(file.createdAt).toLocaleString() }}</p>
-      <div class="actions">
-        <a :href="`http://localhost:5000/${file.path}`" target="_blank" class="download-link">Download File</a>
-        <button @click="deleteFile" class="delete-button">Delete File</button>
-        <button @click="goBack" class="back-button">Back to List</button>
+  <div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800">File Details</h2>
+      <template v-if="file">
+        <div class="space-y-4">
+          <h3 class="text-xl font-semibold text-gray-700">{{ file.name }}</h3>
+          <div class="space-y-2">
+            <p class="text-gray-600"><span class="font-medium">Size:</span> {{ file.size }} bytes</p>
+            <p class="text-gray-600"><span class="font-medium">Type:</span> {{ file.type }}</p>
+            <p class="text-gray-600">
+              <span class="font-medium">Uploaded On:</span>
+              {{ new Date(file.createdAt).toLocaleString() }}
+            </p>
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <div v-if="!isEditing" class="flex justify-between items-start">
+                <p class="text-gray-600 whitespace-pre-wrap">{{ file.description || 'No description' }}</p>
+                <button @click="startEditing" class="ml-2 text-blue-500 hover:text-blue-700">
+                  Edit
+                </button>
+              </div>
+              <div v-else class="space-y-2">
+                <textarea v-model="editedDescription"
+                  class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  rows="3" maxlength="500"></textarea>
+                <div class="flex space-x-2">
+                  <button @click="saveDescription"
+                    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors">
+                    Save
+                  </button>
+                  <button @click="cancelEditing"
+                    class="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex space-x-4 mt-6">
+            <a :href="`http://localhost:5000/${file.path}`" target="_blank"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+              Download File
+            </a>
+            <button @click="deleteFile"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
+              Delete File
+            </button>
+            <button @click="goBack"
+              class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
+              Back to List
+            </button>
+          </div>
+        </div>
+      </template>
+      <div v-else class="text-gray-500 text-center py-4">
+        Loading file details...
       </div>
-    </div>
-    <div v-else>
-      <p>Loading file details...</p>
     </div>
   </div>
 </template>
@@ -32,6 +74,8 @@ const props = defineProps({
 
 const router = useRouter();
 const file = ref(null);
+const isEditing = ref(false);
+const editedDescription = ref('');
 
 const fetchFileDetails = async () => {
   try {
@@ -57,62 +101,29 @@ const goBack = () => {
   router.push({ name: 'dashboard' });
 };
 
+const startEditing = () => {
+  editedDescription.value = file.value.description || '';
+  isEditing.value = true;
+};
+
+const cancelEditing = () => {
+  isEditing.value = false;
+  editedDescription.value = '';
+};
+
+const saveDescription = async () => {
+  try {
+    const updatedFile = await api.updateDescription(props.fileId, editedDescription.value);
+    file.value = updatedFile;
+    isEditing.value = false;
+  } catch (error) {
+    console.error('Error updating description:', error);
+  }
+};
+
 onMounted(() => {
   if (props.fileId) {
     fetchFileDetails();
   }
 });
 </script>
-
-<style scoped>
-.file-viewer {
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin: 20px;
-}
-
-.actions {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-}
-
-.download-link,
-.back-button,
-.delete-button {
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.download-link {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.delete-button {
-  background-color: #f44336;
-  color: white;
-  border: none;
-}
-
-.back-button {
-  background-color: #42b983;
-  color: white;
-  border: none;
-}
-
-.download-link:hover {
-  background-color: #45a049;
-}
-
-.delete-button:hover {
-  background-color: #da190b;
-}
-
-.back-button:hover {
-  background-color: #3aa876;
-}
-</style>

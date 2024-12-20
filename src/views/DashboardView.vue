@@ -1,6 +1,6 @@
 <template>
-  <div class="dashboard">
-    <h1>File Management Dashboard</h1>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">File Management Dashboard</h1>
     <FileUpload @file-uploaded="refreshFileList" />
     <FileList ref="fileList" />
   </div>

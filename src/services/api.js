@@ -49,4 +49,16 @@ export default {
       throw error;
     }
   },
+  
+  updateDescription: async (fileId, description) => {
+    try {
+      const response = await axios.put(`${API_URL}/${fileId}/description`, {
+        description,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating description:", error);
+      throw error;
+    }
+  },
 };
