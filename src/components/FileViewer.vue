@@ -6,8 +6,11 @@
       <p><strong>Size:</strong> {{ file.size }} bytes</p>
       <p><strong>Type:</strong> {{ file.type }}</p>
       <p><strong>Uploaded On:</strong> {{ new Date(file.createdAt).toLocaleString() }}</p>
-      <a :href="`http://localhost:5000/${file.path}`" target="_blank">Download File</a>
-      <button @click="goBack" class="back-button">Back to List</button>
+      <div class="actions">
+        <a :href="`http://localhost:5000/${file.path}`" target="_blank" class="download-link">Download File</a>
+        <button @click="deleteFile" class="delete-button">Delete File</button>
+        <button @click="goBack" class="back-button">Back to List</button>
+      </div>
     </div>
     <div v-else>
       <p>Loading file details...</p>
@@ -39,6 +42,17 @@ const fetchFileDetails = async () => {
   }
 };
 
+const deleteFile = async () => {
+  if (confirm('Are you sure you want to delete this file?')) {
+    try {
+      await api.deleteFile(props.fileId);
+      router.push({ name: 'dashboard' });
+    } catch (error) {
+      console.error('Error deleting file:', error);
+    }
+  }
+};
+
 const goBack = () => {
   router.push({ name: 'dashboard' });
 };
@@ -58,14 +72,44 @@ onMounted(() => {
   margin: 20px;
 }
 
-.back-button {
+.actions {
   margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.download-link,
+.back-button,
+.delete-button {
   padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.download-link {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}
+
+.back-button {
   background-color: #42b983;
   color: white;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
+}
+
+.download-link:hover {
+  background-color: #45a049;
+}
+
+.delete-button:hover {
+  background-color: #da190b;
 }
 
 .back-button:hover {
